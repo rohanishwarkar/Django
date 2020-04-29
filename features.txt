@@ -1,0 +1,17 @@
+Login
+Signup
+PhoneBook (CRUD)
+AutoComplete Search numbers/names
+Paging of results
+
+User :
+phone
+firstname
+lastname
+email
+password
+
+Phones:
+user_id
+name
+number
