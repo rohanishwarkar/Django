@@ -1,14 +1,19 @@
 from django.shortcuts import render
+from django.contrib.auth import login as django_login
+from django.contrib.auth import logout as django_logout
 
-# Create your views here.
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import authentication, permissions
 from rest_framework import generics,mixins
 from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication 
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer,LoginSerializer
 from .models import User
 from .helpermethods import getResponse
 # from django.contrib.auth.models import User
@@ -17,10 +22,30 @@ okay200 	= status.HTTP_200_OK
 err400 		= status.HTTP_400_BAD_REQUEST
 servererror = status.HTTP_500_INTERNAL_SERVER_ERROR
 
+class LoginView(APIView):
+	def post(self,request):
+		serializer = LoginSerializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+		user = serializer.validated_data["user"]
+		django_login(request,user)
+		token, created =  Token.objects.get_or_create(user=user)
+		return Response({'token':token.key},status=200)
+
+
+
+class LogoutView(APIView):
+	authentication_classes = (TokenAuthentication,)
+	def post(self,request):
+		django_logout(request)
+		return Response(status=204)
+
+
 class UserGenericView(generics.ListAPIView,mixins.ListModelMixin,mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin):
 	serializer_class = UserSerializer
 	queryset = User.objects.all()
 	lookup_field = 'id'
+	authentication_classes = [TokenAuthentication,SessionAuthentication,BasicAuthentication]
+	permission_classes = [IsAuthenticated]
 
 	def get(self,request,id=None):
 		if id is not None:
