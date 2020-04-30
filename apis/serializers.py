@@ -1,40 +1,74 @@
-from rest_framework import serializers,exceptions
-from django.contrib.auth import authenticate,login
-# from django.contrib.auth.models import User
-from apis.models import User,PhoneBook
+# from rest_framework import serializers,exceptions
+# from django.contrib.auth import authenticate,login
+# # from django.contrib.auth.models import User
+# # from apis.models import User,PhoneBook
+# from apis.models import CustomUser
 
-class PhoneBookSerializer(serializers.ModelSerializer):
+# # class UserSerializer(serializers.ModelSerializer):
+# # 	class Meta:
+# # 		model = User
+# # 		fields = ('__all__')
+
+# class CustomUserSerializer(serializers.ModelSerializer):
+
+#     class Meta:
+#         model = CustomUser
+#         fields = ('__all__')
+
+
+# class RegistrationSerializer(serializers.ModelSerializer):
+
+# 	# password2 				= serializers.CharField(style={'input_type': 'password'}, write_only=True)
+
+# 	class Meta:
+# 		model = CustomUser
+# 		fields = ['phone', 'password']
+# 		# extra_kwargs = {
+# 		# 		'password': {'write_only': True},
+# 		# }	
+
+
+# 	def save(self):
+
+# 		account = CustomUser(
+# 					phone=self.validated_data['phone']
+# 				)
+# 		password = self.validated_data['password']
+# 		# password2 = self.validated_data['password2']
+# 		# if password != password2:
+# 		# 	raise serializers.ValidationError({'password': 'Passwords must match.'})
+# 		account.set_password(password)
+# 		account.save()
+# 		return account
+
+
+from rest_framework import serializers
+
+from  .models import Account
+
+
+class RegistrationSerializer(serializers.ModelSerializer):
+
+	password2 				= serializers.CharField(style={'input_type': 'password'}, write_only=True)
+
 	class Meta:
-		model = PhoneBook
-		fields = '__all__'
-		# First Level details in this case user details
-		# depth=1
-		
-
-class UserSerializer(serializers.ModelSerializer):
-	# numbers = PhoneBookSerializer(many=True)
-	class Meta:
-		model = User
-		fields = '__all__'
-   
+		model = Account
+		fields = ['email', 'username', 'password', 'password2']
+		extra_kwargs = {
+				'password': {'write_only': True},
+		}	
 
 
-class LoginSerializer(serializers.Serializer):
-	username = serializers.CharField()
-	password = serializers.CharField()
+	def	save(self):
 
-	def validate(self,data):
-		username = data.get("username","")
-		password = data.get("password","")
-		if username and password:
-			user = authenticate(username=username,password=password)
-			if user:
-				if user.is_active:
-					data["user"] = user
-				else:
-					raise exceptions.ValidationError("User not active!")
-			else:
-				raise exceptions.ValidationError('Unable to Login!')
-		else:
-			raise exceptions.ValidationError('One or more field missing')
-		return data
+		account = Account(
+					email=self.validated_data['email'],
+					username=self.validated_data['username']
+				)
+		password = self.validated_data['password']
+		password2 = self.validated_data['password2']
+		if password != password2:
+			raise serializers.ValidationError({'password': 'Passwords must match.'})
+		account.set_password(password)
+		account.save()
+		return account
