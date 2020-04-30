@@ -1,12 +1,23 @@
 from rest_framework import serializers,exceptions
 from django.contrib.auth import authenticate,login
 # from django.contrib.auth.models import User
-from apis.models import User
+from apis.models import User,PhoneBook
+
+class PhoneBookSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = PhoneBook
+		fields = '__all__'
+		# First Level details in this case user details
+		# depth=1
+		
 
 class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'
+	# numbers = PhoneBookSerializer(many=True)
+	class Meta:
+		model = User
+		fields = '__all__'
+   
+
 
 class LoginSerializer(serializers.Serializer):
 	username = serializers.CharField()

@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication 
 
-from .serializers import UserSerializer,LoginSerializer
+from .serializers import UserSerializer,LoginSerializer,PhoneBookSerializer
 from .models import User
 from .helpermethods import getResponse
 # from django.contrib.auth.models import User
@@ -21,6 +21,8 @@ from .helpermethods import getResponse
 okay200 	= status.HTTP_200_OK
 err400 		= status.HTTP_400_BAD_REQUEST
 servererror = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+
 
 class LoginView(APIView):
 	def post(self,request):
@@ -31,14 +33,11 @@ class LoginView(APIView):
 		token, created =  Token.objects.get_or_create(user=user)
 		return Response({'token':token.key},status=200)
 
-
-
 class LogoutView(APIView):
 	authentication_classes = (TokenAuthentication,)
 	def post(self,request):
 		django_logout(request)
 		return Response(status=204)
-
 
 class UserGenericView(generics.ListAPIView,mixins.ListModelMixin,mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin):
 	serializer_class = UserSerializer

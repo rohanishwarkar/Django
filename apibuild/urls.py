@@ -18,7 +18,10 @@ from django.urls import path, include
 from apis.router import router
 
 urlpatterns = [
+	 # Admin URLS
     path('admin/', admin.site.urls),
-    # path('api/', include(router.urls)),
+	 # Viewset URLS
+    path('api/', include(router.urls)),
+	 # View URLS
     path('api/',include('apis.urls'))
 ]
