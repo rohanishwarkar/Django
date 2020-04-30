@@ -16,6 +16,7 @@ from rest_framework.authentication import TokenAuthentication
 
 from knox.views import LoginView as KnoxLoginView
 from .serializers import CustomUserSerializer
+from .serializers import LoginSerializer
 from .models import CustomUser
 from .helpermethods import getResponse
 
@@ -74,3 +75,52 @@ class RegisterView(KnoxLoginView):
 						'details':"Internal Server Error",
 						'data':None
 					})
+
+class LoginView(KnoxLoginView):
+		permission_classes = (permissions.AllowAny, )
+		def post(self, request, format=None):
+			fcm_token = request.data.get('fcm_token', False)
+			serializer = LoginSerializer(data=request.data)
+
+			if serializer.is_valid(raise_exception=False):
+				user = serializer.validated_data['user']
+				if fcm_token == "" or fcm_token is None:
+						django_login(request,user)
+				else:
+						user.fcm_token = fcm_token
+						user.save()
+						django_login(request, user)
+
+				django_login(request, user)
+				data = super().post(request, format=None)
+				if user.fcm_token == "" or user.fcm_token == None:
+						return Response({
+							'status':True,
+							'code':status.HTTP_200_OK,
+							'details':"Login Successful! Notifications Disabled",
+							'data':data.data
+						})
+				else:
+						return Response({
+							'status':True,
+							'code':status.HTTP_200_OK,
+							'details':"Login Successful!",
+							'data':data.data
+						})
+			else:
+				if serializer.errors.get('details'):
+						return Response({
+							'status':False,
+							'code':status.HTTP_400_BAD_REQUEST,
+							'details':serializer.errors['details'][0],
+							'data':None
+						})
+
+				else:
+						return Response({
+							'status':False,
+							'code':status.HTTP_400_BAD_REQUEST,
+							'details':"Unable to Login!",
+							'data':None
+						})
+
