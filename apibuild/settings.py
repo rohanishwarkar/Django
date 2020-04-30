@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'apis',
     'rest_framework',
-	 'rest_framework.authtoken'
+	 'rest_framework.authtoken',
+	 'knox'
 ]
 
 MIDDLEWARE = [
@@ -52,7 +53,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-AUTH_USER_MODEL = 'apis.Account'
+AUTH_USER_MODEL = 'apis.CustomUser'
+
+REST_KNOX={
+    'USER_SERIALIZER': 'apis.serializers.CustomUserSerializer',
+    'TOKEN_TTL': None,
+}
 
 ROOT_URLCONF = 'apibuild.urls'
 

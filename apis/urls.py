@@ -1,5 +1,5 @@
-# # from .views import UserView,UserDetailView,UserGenericView,LoginView,LogoutView
-from .views import registration_view
+
+from .views import RegisterView
 from django.urls import path, include
 
 urlpatterns = [
@@ -13,5 +13,5 @@ urlpatterns = [
 	#  path('auth/logout/',LogoutView.as_view()),
 	 
 	 # Modified Users
-	 path('register/',registration_view)
+	 path('register/',RegisterView.as_view())
 ]
