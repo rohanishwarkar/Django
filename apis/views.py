@@ -14,7 +14,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication 
 
 from .serializers import UserSerializer,LoginSerializer,PhoneBookSerializer
-from .models import User
+from .models import User,PhoneBook
 from .helpermethods import getResponse
 # from django.contrib.auth.models import User
 
@@ -119,14 +119,21 @@ class UserDetailView(APIView):
 			return None
 
 	def get(self,request,id=None):
+		print("Roha")
 		instance = self.get_object(id)
-		serializer = UserSerializer(instance)
-		if instance is not None:
+		phone_numbers = list(PhoneBook.objects.filter(user=id).values())
+		# for phone in phone_numbers:
+		# 	phone["user"] = phone["user_id"]
+		serialized_phone_numbers = PhoneBookSerializer(data=phone_numbers,many=True)
+		if serialized_phone_numbers.is_valid(raise_exception=True) and instance:
+			serializer = UserSerializer(instance)
+			data = serializer.data
+			data["phone_numbers"] = serialized_phone_numbers.data
 			return Response({
 				'status':True,
 				'code':status.HTTP_200_OK,
 				'details':'Sucessfully Fetched User!',
-				'data':serializer.data
+				'data':data
 			})
 		return Response({
 			'status':False,
